@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/>
+<style>
+    body{font-family:'Segoe UI',sans-serif;background:#f4f6fb;margin:0;padding:0}
+    .container{max-width:600px;margin:40px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.08)}
+    .header{background:linear-gradient(135deg,#10b981,#059669);padding:36px 30px;text-align:center}
+    .header h1{color:#fff;margin:0;font-size:26px}
+    .header p{color:rgba(255,255,255,.85);margin:8px 0 0}
+    .body{padding:32px 40px}
+    .body p{color:#4b5563;line-height:1.7;font-size:15px}
+    .btn{display:inline-block;background:linear-gradient(135deg,#10b981,#059669);color:#fff!important;text-decoration:none;padding:13px 28px;border-radius:8px;font-weight:600;font-size:15px;margin:20px 0}
+    .footer{background:#f9fafb;padding:20px 40px;text-align:center;color:#9ca3af;font-size:12px;border-top:1px solid #e5e7eb}
+    .badge{background:#d1fae5;color:#065f46;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600}
+</style></head>
+<body>
+<div class="container">
+    <div class="header"><h1>🗳️ Ballot Started!</h1><p>A new vote is waiting for you</p></div>
+    <div class="body">
+        <p>Hi <strong th:text="${firstName}">User</strong>,</p>
+        <p>A new ballot has just started in your organization: <strong th:text="${ballotTitle}">Ballot Title</strong></p>
+        <p>Don't forget to cast your vote before it ends on <strong th:text="${endDate}">date</strong>.</p>
+        <div style="text-align:center"><a href="#" class="btn">🗳️ Vote Now</a></div>
+    </div>
+    <div class="footer">© 2024 Ballot Platform</div>
+</div></body></html>

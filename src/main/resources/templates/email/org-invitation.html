@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/>
+<style>
+    body{font-family:'Segoe UI',sans-serif;background:#f4f6fb;margin:0;padding:0}
+    .container{max-width:600px;margin:40px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.08)}
+    .header{background:linear-gradient(135deg,#f59e0b,#d97706);padding:36px 30px;text-align:center}
+    .header h1{color:#fff;margin:0;font-size:26px}
+    .body{padding:32px 40px}
+    .body p{color:#4b5563;line-height:1.7;font-size:15px}
+    .code{background:#fef3c7;border:2px dashed #f59e0b;border-radius:8px;padding:16px 24px;text-align:center;font-size:24px;font-weight:800;letter-spacing:4px;color:#92400e;margin:20px 0}
+    .footer{background:#f9fafb;padding:20px 40px;text-align:center;color:#9ca3af;font-size:12px;border-top:1px solid #e5e7eb}
+</style></head>
+<body>
+<div class="container">
+    <div class="header"><h1>📧 You're Invited!</h1></div>
+    <div class="body">
+        <p>Hi <strong th:text="${firstName}">User</strong>,</p>
+        <p>You've been invited to join <strong th:text="${orgName}">Organization</strong> on Ballot. Use the invite code below to join:</p>
+        <div class="code" th:text="${inviteCode}">INVITE-CODE</div>
+        <p>Log in to your Ballot account and enter this code when joining an organization.</p>
+    </div>
+    <div class="footer">© 2024 Ballot Platform</div>
+</div></body></html>

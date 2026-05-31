@@ -1,0 +1,16 @@
+spring:
+  jpa:
+    show-sql: false
+
+server:
+  ssl:
+    enabled: ${SSL_ENABLED:false}
+    key-store: ${SSL_KEY_STORE:}
+    key-store-password: ${SSL_KEY_STORE_PASSWORD:}
+    key-store-type: PKCS12
+
+logging:
+  level:
+    com.ballot: WARN
+    org.springframework: WARN
+    root: ERROR

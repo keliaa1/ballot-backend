@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/>
+<style>
+    body{font-family:'Segoe UI',sans-serif;background:#f4f6fb;margin:0;padding:0}
+    .container{max-width:600px;margin:40px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.08)}
+    .header{background:linear-gradient(135deg,#6366f1,#8b5cf6);padding:36px 30px;text-align:center}
+    .header h1{color:#fff;margin:0;font-size:26px}
+    .header p{color:rgba(255,255,255,.85);margin:8px 0 0}
+    .body{padding:32px 40px}
+    .body p{color:#4b5563;line-height:1.7;font-size:15px}
+    .btn{display:inline-block;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff!important;text-decoration:none;padding:13px 28px;border-radius:8px;font-weight:600;font-size:15px;margin:20px 0}
+    .footer{background:#f9fafb;padding:20px 40px;text-align:center;color:#9ca3af;font-size:12px;border-top:1px solid #e5e7eb}
+</style></head>
+<body>
+<div class="container">
+    <div class="header"><h1>📊 Ballot Ended</h1><p>Results are now available</p></div>
+    <div class="body">
+        <p>Hi <strong th:text="${firstName}">User</strong>,</p>
+        <p>The ballot <strong th:text="${ballotTitle}">Ballot Title</strong> has ended and the results are now available.</p>
+        <div style="text-align:center"><a href="#" class="btn">📊 View Results</a></div>
+    </div>
+    <div class="footer">© 2024 Ballot Platform</div>
+</div></body></html>
