@@ -152,6 +152,31 @@ public class NotificationService {
                 NotificationType.IN_APP, null);
     }
 
+    /**
+     * Sent to members who haven't voted yet, X hours before the ballot closes.
+     */
+    @Async
+    public void sendVotingReminderNotification(User user, Ballot ballot, int hoursLeft) {
+        String timeLabel = hoursLeft >= 24 ? "24 hours" : hoursLeft + " hour" + (hoursLeft == 1 ? "" : "s");
+        createInAppNotification(user,
+                "⏰ Voting Reminder",
+                "Only " + timeLabel + " left to vote on '" + ballot.getTitle() + "'. Don't miss your chance!",
+                NotificationType.IN_APP,
+                "/ballots/" + ballot.getId());
+    }
+
+    /**
+     * Sent to all org members once results have been computed after ballot closes.
+     */
+    @Async
+    public void sendResultsPublishedNotification(User user, Ballot ballot) {
+        createInAppNotification(user,
+                "📊 Results Published",
+                "Results for '" + ballot.getTitle() + "' are now available. See how the vote went!",
+                NotificationType.IN_APP,
+                "/ballots/" + ballot.getId());
+    }
+
     private void sendEmail(String to, String subject, String templateName, Context context) {
         try {
             String htmlContent = templateEngine.process("email/" + templateName, context);

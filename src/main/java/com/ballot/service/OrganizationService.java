@@ -71,8 +71,12 @@ public class OrganizationService {
     // ===== READ =====
 
     @Transactional(readOnly = true)
-    public PageResponse<OrganizationResponse> getAllOrganizations(int page, int size, String search) {
-        Pageable pageable = PageUtil.of(page, size, "createdAt", "desc");
+    public PageResponse<OrganizationResponse> getAllOrganizations(int page, int size,
+                                                                   String search,
+                                                                   String sortBy, String direction) {
+        // SORTING: PageUtil.of(page, size, sortBy, direction) creates
+        //   Sort.by(sortBy).ascending() or .descending() and wraps it in a PageRequest
+        Pageable pageable = PageUtil.of(page, size, sortBy, direction);
         Page<Organization> orgPage;
         if (search != null && !search.isBlank()) {
             orgPage = organizationRepository.searchActiveOrganizations(search, pageable);
@@ -84,8 +88,10 @@ public class OrganizationService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<OrganizationResponse> getMyOrganizations(User user, int page, int size) {
-        Pageable pageable = PageUtil.of(page, size, "createdAt", "desc");
+    public PageResponse<OrganizationResponse> getMyOrganizations(User user,
+                                                                   int page, int size,
+                                                                   String sortBy, String direction) {
+        Pageable pageable = PageUtil.of(page, size, sortBy, direction);
         Page<Organization> orgPage = organizationRepository.findAllByMemberUserId(user.getId(), pageable);
         return PageUtil.toPageResponse(orgPage.map(o -> {
             long memberCount = membershipRepository.countByOrganizationIdAndStatus(o.getId(), MembershipStatus.ACTIVE);

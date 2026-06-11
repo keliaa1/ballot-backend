@@ -33,13 +33,15 @@ public class OrganizationController {
     private final MembershipService membershipService;
 
     @GetMapping
-    @Operation(summary = "List all active organizations (paginated, searchable)")
+    @Operation(summary = "List all active organizations (paginated, sortable, searchable)")
     public ResponseEntity<ApiResponse<PageResponse<OrganizationResponse>>> getAllOrganizations(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @RequestParam(required = false) String search) {
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction) {
         return ResponseEntity.ok(ApiResponse.success(
-                organizationService.getAllOrganizations(page, size, search)));
+                organizationService.getAllOrganizations(page, size, search, sortBy, direction)));
     }
 
     @GetMapping("/my")
@@ -47,9 +49,11 @@ public class OrganizationController {
     public ResponseEntity<ApiResponse<PageResponse<OrganizationResponse>>> getMyOrganizations(
             @AuthenticationPrincipal User user,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction) {
         return ResponseEntity.ok(ApiResponse.success(
-                organizationService.getMyOrganizations(user, page, size)));
+                organizationService.getMyOrganizations(user, page, size, sortBy, direction)));
     }
 
     @GetMapping("/{id}")
@@ -124,12 +128,15 @@ public class OrganizationController {
     // ===== Membership sub-resources =====
 
     @GetMapping("/{id}/members")
-    @Operation(summary = "Get active members of an organization")
+    @Operation(summary = "Get active members of an organization (paginated, sortable)")
     public ResponseEntity<ApiResponse<PageResponse<MembershipResponse>>> getMembers(
             @PathVariable String id,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        return ResponseEntity.ok(ApiResponse.success(membershipService.getMembers(id, page, size)));
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "joinedAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction) {
+        return ResponseEntity.ok(ApiResponse.success(
+                membershipService.getMembers(id, page, size, sortBy, direction)));
     }
 
     @GetMapping("/{id}/members/pending")

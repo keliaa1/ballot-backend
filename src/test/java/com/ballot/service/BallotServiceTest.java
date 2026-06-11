@@ -5,6 +5,8 @@ import com.ballot.dto.ballot.CreateBallotRequest;
 import com.ballot.entity.*;
 import com.ballot.exception.*;
 import com.ballot.repository.*;
+import com.ballot.service.DynamicBallotScheduler;
+import org.springframework.security.access.AccessDeniedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,6 +32,9 @@ class BallotServiceTest {
     @Mock private MembershipRepository membershipRepository;
     @Mock private VoteRepository voteRepository;
     @Mock private ApplicationEventPublisher eventPublisher;
+    @Mock private ResultService resultService;
+    @Mock private NotificationService notificationService;
+    @Mock private DynamicBallotScheduler dynamicScheduler;
 
     @InjectMocks
     private BallotService ballotService;
@@ -111,7 +116,8 @@ class BallotServiceTest {
                 .thenReturn(Optional.of(memberMembership));
 
         assertThatThrownBy(() -> ballotService.createBallot(buildCreateRequest(), admin, "127.0.0.1", "agent"))
-                .isInstanceOf(UnauthorizedException.class);
+                .isInstanceOf(AccessDeniedException.class)
+                .hasMessageContaining("Only organization admins can manage ballots");
     }
 
     private CreateBallotRequest buildCreateRequest() {

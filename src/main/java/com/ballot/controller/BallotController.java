@@ -32,9 +32,11 @@ public class BallotController {
     public ResponseEntity<ApiResponse<PageResponse<BallotResponse>>> getActiveBallotsForMe(
             @AuthenticationPrincipal User user,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "startDate") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction) {
         return ResponseEntity.ok(ApiResponse.success(
-                ballotService.getVisibleBallotsForUser(user, page, size)));
+                ballotService.getVisibleBallotsForUser(user, page, size, sortBy, direction)));
     }
 
     @GetMapping("/my")
@@ -42,9 +44,11 @@ public class BallotController {
     public ResponseEntity<ApiResponse<PageResponse<BallotResponse>>> getMyBallots(
             @AuthenticationPrincipal User user,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction) {
         return ResponseEntity.ok(ApiResponse.success(
-                ballotService.getMyBallots(user, page, size)));
+                ballotService.getMyBallots(user, page, size, sortBy, direction)));
     }
 
     @GetMapping("/org/{orgId}")
@@ -53,9 +57,11 @@ public class BallotController {
             @PathVariable String orgId,
             @AuthenticationPrincipal User user,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction) {
         return ResponseEntity.ok(ApiResponse.success(
-                ballotService.getBallotsByOrg(orgId, user, page, size)));
+                ballotService.getBallotsByOrg(orgId, user, page, size, sortBy, direction)));
     }
 
     @GetMapping("/{id}")

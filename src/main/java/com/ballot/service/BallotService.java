@@ -33,6 +33,7 @@ public class BallotService {
     private final ApplicationEventPublisher eventPublisher;
     private final ResultService resultService;
     private final NotificationService notificationService;
+    private final DynamicBallotScheduler dynamicScheduler;
 
     // ===== CREATE =====
 
@@ -72,6 +73,9 @@ public class BallotService {
         List<BallotOption> options = buildOptions(request.getOptions(), ballot);
         ballot.getOptions().addAll(ballotOptionRepository.saveAll(options));
 
+        // Dynamically schedule: activate, close, reminders (24h + 1h), results publication
+        dynamicScheduler.scheduleAll(ballot);
+
         eventPublisher.publishEvent(new BallotCreatedEvent(this, creator.getId(), ballot.getId(),
                 org.getId(), ipAddress, userAgent));
         log.info("Ballot created: {} in org {}", ballot.getId(), org.getId());
@@ -81,9 +85,12 @@ public class BallotService {
     // ===== READ =====
 
     @Transactional(readOnly = true)
-    public PageResponse<BallotResponse> getBallotsByOrg(String orgId, User viewer, int page, int size) {
+    public PageResponse<BallotResponse> getBallotsByOrg(String orgId, User viewer,
+                                                         int page, int size,
+                                                         String sortBy, String direction) {
         requireActiveMember(orgId, viewer.getId());
-        Pageable pageable = PageUtil.of(page, size, "createdAt", "desc");
+        // SORTING: PageUtil.of() builds Sort.by(sortBy).ascending/descending()
+        Pageable pageable = PageUtil.of(page, size, sortBy, direction);
         Page<Ballot> ballots = ballotRepository.findAllByOrganizationId(orgId, pageable);
         return PageUtil.toPageResponse(ballots.map(b -> {
             long totalVotes = voteRepository.countByBallotId(b.getId());
@@ -102,8 +109,11 @@ public class BallotService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<BallotResponse> getVisibleBallotsForUser(User user, int page, int size) {
-        Pageable pageable = PageUtil.of(page, size, "startDate", "desc");
+    public PageResponse<BallotResponse> getVisibleBallotsForUser(User user,
+                                                                   int page, int size,
+                                                                   String sortBy, String direction) {
+        // PAGINATION + SORTING: Pageable carries both page/size and the chosen sort
+        Pageable pageable = PageUtil.of(page, size, sortBy, direction);
         Page<Ballot> ballots = ballotRepository.findVisibleBallotsForUser(user.getId(), pageable);
         return PageUtil.toPageResponse(ballots.map(b -> {
             long totalVotes = voteRepository.countByBallotId(b.getId());
@@ -113,8 +123,10 @@ public class BallotService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<BallotResponse> getMyBallots(User user, int page, int size) {
-        Pageable pageable = PageUtil.of(page, size, "createdAt", "desc");
+    public PageResponse<BallotResponse> getMyBallots(User user,
+                                                      int page, int size,
+                                                      String sortBy, String direction) {
+        Pageable pageable = PageUtil.of(page, size, sortBy, direction);
         Page<Ballot> ballots = ballotRepository.findAllByCreatedById(user.getId(), pageable);
         return PageUtil.toPageResponse(ballots.map(b -> {
             long totalVotes = voteRepository.countByBallotId(b.getId());
@@ -153,6 +165,10 @@ public class BallotService {
         }
 
         ballot = ballotRepository.save(ballot);
+
+        // Reschedule all tasks with updated start/end times
+        dynamicScheduler.scheduleAll(ballot);
+
         long totalVotes = voteRepository.countByBallotId(ballotId);
         return toResponse(ballot, ballot.getCreatedBy(), totalVotes, false);
     }
@@ -197,6 +213,8 @@ public class BallotService {
         }
         ballot.setStatus(BallotStatus.CANCELLED);
         ballotRepository.save(ballot);
+        // Cancel any pending dynamic tasks for this ballot
+        dynamicScheduler.cancelAllTasksForBallot(ballotId);
     }
 
     // ===== INTERNAL (used by scheduler) =====

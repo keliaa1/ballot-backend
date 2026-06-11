@@ -28,8 +28,12 @@ public class MembershipService {
     private final NotificationService notificationService;
 
     @Transactional(readOnly = true)
-    public PageResponse<MembershipResponse> getMembers(String orgId, int page, int size) {
-        Pageable pageable = PageUtil.of(page, size, "joinedAt", "desc");
+    public PageResponse<MembershipResponse> getMembers(String orgId,
+                                                        int page, int size,
+                                                        String sortBy, String direction) {
+        // PAGINATION + SORTING: Pageable bundles page number, page size, and sort together.
+        // Spring Data JPA translates this into: ORDER BY <sortBy> <direction> LIMIT <size> OFFSET <page*size>
+        Pageable pageable = PageUtil.of(page, size, sortBy, direction);
         Page<Membership> memberships = membershipRepository
                 .findAllByOrganizationIdAndStatus(orgId, MembershipStatus.ACTIVE, pageable);
         return PageUtil.toPageResponse(memberships.map(this::toResponse));

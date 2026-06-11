@@ -36,13 +36,16 @@ public class NotificationController {
     }
 
     @GetMapping
-    @Operation(summary = "Get paginated notifications for the current user")
+    @Operation(summary = "Get paginated notifications for the current user (sortable)")
     public ResponseEntity<ApiResponse<PageResponse<NotificationResponse>>> getNotifications(
             @AuthenticationPrincipal User user,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction) {
+        // PAGINATION + SORTING applied together via PageUtil
         Page<Notification> notifications = notificationRepository
-                .findAllByUserIdOrderByCreatedAtDesc(user.getId(), PageUtil.of(page, size));
+                .findAllByUserId(user.getId(), PageUtil.of(page, size, sortBy, direction));
         PageResponse<NotificationResponse> response = PageUtil.toPageResponse(
                 notifications.map(this::toResponse));
         return ResponseEntity.ok(ApiResponse.success(response));
